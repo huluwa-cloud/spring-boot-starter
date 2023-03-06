@@ -70,6 +70,15 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ *
+ * =========================================================================
+ * =========================================================================
+ * ========================入口  入口  入口  入口  =======================
+ * =========================================================================
+ * =========================================================================
+ *
+ * 如果集成了mybatis-spring-boot-starter，那么这里就是整个MyBatis框架的入口
+ *
  * {@link EnableAutoConfiguration Auto-Configuration} for Mybatis. Contributes a {@link SqlSessionFactory} and a
  * {@link SqlSessionTemplate}.
  *
@@ -82,7 +91,11 @@ import org.springframework.util.StringUtils;
  * @author Kazuki Shimizu
  * @author Eduardo Macarrón
  */
+
 @org.springframework.context.annotation.Configuration
+// MybatisAutoConfiguration用了@Configuration来注解，
+// 所以，MybatisAutoConfiguration是一个Configuration类。
+
 @ConditionalOnClass({ SqlSessionFactory.class, SqlSessionFactoryBean.class })
 @ConditionalOnSingleCandidate(DataSource.class)
 @EnableConfigurationProperties(MybatisProperties.class)
@@ -135,8 +148,9 @@ public class MybatisAutoConfiguration implements InitializingBean {
     }
   }
 
-  @Bean
-  @ConditionalOnMissingBean
+  @Bean // 需要创建一个SqlSessionFactory的bean
+  @ConditionalOnMissingBean // 如果没有SqlSessionFactory这个Bean的时候，就会创建
+  // DataSource是SpringBoot AutoConfig会创建的
   public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {
     SqlSessionFactoryBean factory = new SqlSessionFactoryBean();
     factory.setDataSource(dataSource);
@@ -185,6 +199,7 @@ public class MybatisAutoConfiguration implements InitializingBean {
       factory.setDefaultScriptingLanguageDriver(defaultLanguageDriver);
     }
     applySqlSessionFactoryBeanCustomizers(factory);
+    // SqlSessionFactoryBean是一个FactoryBean，所以，要让它产生bean，需要调用它的getObject方法。
     return factory.getObject();
   }
 
@@ -209,6 +224,12 @@ public class MybatisAutoConfiguration implements InitializingBean {
     }
   }
 
+  /**
+   *
+   * SqlSessionTemplate 核心的Bean！！！！！
+   *
+   *
+   */
   @Bean
   @ConditionalOnMissingBean
   public SqlSessionTemplate sqlSessionTemplate(SqlSessionFactory sqlSessionFactory) {
